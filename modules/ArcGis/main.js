@@ -218,7 +218,7 @@ require([
 	}
 
 	const queryPopUpTemplate = {
-		title: "Název lokality: {}",
+		title: "Název nějaké lokality: {}",
 		content: [
 			{
 				type: "fields",
