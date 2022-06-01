@@ -18,8 +18,15 @@
 
 <body>
 	<div class="wrapper">
+		
 		<div class="viewDiv" id="viewDiv">
+			
 		</div>
+
+		
+
+
+
 		
 		<div class="controlTab mui--z4" id="titleDiv">
 			<h2>Mapy Prameny Krkonoš</h2>
@@ -128,6 +135,30 @@
 					<label>Zobrazený údaj</label>
 					<select id="jevSelect"></select>
 				</div>
+			</div>
+			<div class="esri-widget" id="optionsDiv">
+				<h2>Filtrování dat</h2>
+		  <select class="esri-widget" id="attSelect">
+			<option value="početobyv">Počet obyvatel</option>
+			<option value="početbudo" selected>Počet budov</option>
+		  </select>
+		  <select class="esri-widget" id="signSelect">
+			<option value=">">je větší než</option>
+			<option value="<">je menší než</option>
+			<option value="=">rovná se</option>
+		  </select>
+		  <input type="number" value="0" id="inputNumber">
+		  <!-- <select class="esri-widget" id="valSelect">
+			<option value="1000">10</option>
+			<option value="5000">50</option>
+			<option value="10000">100</option>
+			<option value="15000">150</option>
+			<option value="20000">200</option>
+		  </select> -->
+		  <br />
+		  <br />
+		  <button class="esri-widget" id="doBtn">Proveď</button> <br />
+		  <p><span id="printResults"></span></p>
 			</div>
 		</div>
 	</div>

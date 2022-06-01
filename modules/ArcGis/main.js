@@ -126,14 +126,21 @@ const getLayersFromButtons = ["ORP", "POU", "obceSouc", "katSoucPol", "ZSJSoucBo
 
 
 require([
+	"esri/config",
 	"esri/views/MapView",
 	"esri/Map",
 	"esri/layers/FeatureLayer",
+	"esri/layers/GraphicsLayer",
 	"esri/layers/TileLayer",
-	"esri/widgets/Expand"
+	"esri/widgets/Expand",
+	"esri/rest/query",
+	"esri/rest/support/Query"
 ], (
-	MapView, Map, FeatureLayer, TileLayer, Expand
+	esriConfig, MapView, Map, FeatureLayer, GraphicsLayer, TileLayer, Expand, query, Query
 ) => {
+
+	esriConfig.apiKey = "AAPK8bc6dada19fc40b495ff8ef292a6162bPTUaWG0rfCO_sIehiCZr8W72weLqN42yKhTPDbTK4S0XbpfyQYfb5RiVUvKkD9AB";
+
 	// buttons from GUI with theirs IDs
 
 	// add listeners to all buttons from GUI
@@ -162,12 +169,25 @@ require([
 	
 
 	const concatedLayers = [].concat(...layersByYears.map((layerByYear) => layerByYear.layers.map((layer) => layer.featureLayer )))
+
+	//create graphic layer to display result of query
+	const resultsLayer = new GraphicsLayer();
+	//set query parameters to always return geometry and all fields
+	const params = new Query({
+		returnGeometry: true,
+		outFields: ["*"]
+	});
 	const map = new Map({
 		basemap: "osm",
 		//tady nevim jak ti funguje to concat - resp. kde vezmes nazev te vrstvy
 		//layers: [layer, POU, obceSouc,katSoucPol,ZSJSoucBod,castObcPol,ZSJPol,soudOkresy]
-		layers: concatedLayers,
+		layers: concatedLayers
 	});
+
+	//Define popup content for each result
+	//zatim neimplementovat
+
+
 
 	const view = new MapView({
 		map: map,
@@ -175,7 +195,78 @@ require([
 		center: [15.79, 50.57],
 		zoom: 9
 	});
-})
+
+	//call doQuery() each time the button is clicked
+	view.when(function() {
+		view.ui.add("optionsDiv", "bottom-right");
+		document.getElementById("doBtn").addEventListener("click", doQuery);
+	});
+	
+	document.getElementById("doBtn").addEventListener("click",doQuery);
+	const attributeName = document.getElementById("attSelect");
+    const expressionSign = document.getElementById("signSelect");
+    const inputValue = document.getElementById("inputNumber");
+	let expression;
+
+	function doQuery() {
+		expression =	attributeName.value +
+						expressionSign.value +
+						inputValue.value;
+		document.getElementById("printResults").innerHTML = expression;
+		featureLayer.definitionExpression = expression;	
+							
+	}
+
+	const queryPopUpTemplate = {
+		title: "Název lokality: {}",
+		content: [
+			{
+				type: "fields",
+				fieldInfos: [
+					{
+						fieldName: "názevLoka",
+						label: "Název lokality"
+					},
+					{
+						fieldName: attributeName.value,
+						label: attributeName.textContent
+					},
+					{
+						fieldName: "typLokalit",
+						label: "Typ lokality"
+					}
+				]
+
+			}
+		]
+	};
+
+	const featureLayer = new FeatureLayer({
+        portalItem: {
+            id: "e1dd7e7c83c141e7b092b47c30577743"
+        },
+        outFields: ["*"],
+        popupTemplate: queryPopUpTemplate
+		// : {
+        //   title: "Název lokality: {}",
+        //   content: "Description: . Land value: "
+        // }
+        //,definitionExpression: "1=0"
+      });
+      map.add(featureLayer);
+
+	function setFeauterLayerFilter(expression) {
+		featureLayer.definitionExpression = expression;
+	}
+	//Event listener
+	
+
+
+		
+
+	
+	
+});
 
 // when some button changed state
 function layersFromButtonsChanged(){

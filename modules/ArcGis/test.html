@@ -1,0 +1,114 @@
+<html>
+<head>
+  <meta name="description" content="ArcGIS JavaScript Tutorials: Filter a feature layer">
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>ArcGIS API for JavaScript Tutorials: Filter a feature layer with SQL (JSAPI)</title>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.23/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.23/"></script>
+</head>
+
+<script>
+  require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+
+      "esri/layers/FeatureLayer"
+
+    ], function(esriConfig,Map,MapView,FeatureLayer) {
+
+      esriConfig.apiKey = "AAPK8bc6dada19fc40b495ff8ef292a6162bPTUaWG0rfCO_sIehiCZr8W72weLqN42yKhTPDbTK4S0XbpfyQYfb5RiVUvKkD9AB";
+
+      const map = new Map({
+        basemap: "arcgis-topographic" // Basemap layer service
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [15.79, 50.57], // Longitude, latitude
+        zoom: 9
+      });
+
+      // Create a UI with the filter expressions
+      const sqlExpressions = ["Choose a SQL where clause...", "idObec='M126'", "početobyv>111", "Bedrooms5 > 0", "UseType = 'Residential'", "Roll_RealEstateExemp > 0"];
+
+      // UI
+      const selectFilter = document.createElement("select");
+      selectFilter.setAttribute("class", "esri-widget esri-select");
+      selectFilter.setAttribute("style", "width: 275px; font-family: Avenir Next W00; font-size: 1em;");
+
+      sqlExpressions.forEach(function(sql){
+        let option = document.createElement("option");
+        option.value = sql;
+        option.innerHTML = sql;
+        selectFilter.appendChild(option);
+      });
+
+      view.ui.add(selectFilter, "top-right");
+
+      // Add a feature layer to map with all features visible on client (no filter)
+      const featureLayer = new FeatureLayer({
+        portalItem: {
+            id: "e1dd7e7c83c141e7b092b47c30577743"
+        },
+        outFields: ["*"],
+        popupTemplate: {
+          title: "Titulek",
+          content: "Description: . Land value: "
+        }
+        //,definitionExpression: "1=0"
+      });
+      map.add(featureLayer);
+
+      // Server-side filter
+      function setFeatureLayerFilter(expression) {
+        featureLayer.definitionExpression = expression;
+      }
+
+      // Event listener
+      selectFilter.addEventListener('change', function (event) {
+        setFeatureLayerFilter(event.target.value);
+      });
+
+    });
+  </script>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <div class="esri-widget" id="optionsDiv">
+    <h2>Filtrování dat</h2>
+<select class="esri-widget" id="attSelect">
+<option value="početobyv">Počet obyvatel</option>
+<option value="početbudo" selected>Počet budov</option>
+</select>
+<select class="esri-widget" id="signSelect">
+<option value=">">je větší než</option>
+<option value="<">je menší než</option>
+<option value="=">rovná se</option>
+</select>
+<select class="esri-widget" id="valSelect">
+<option value="1000">10</option>
+<option value="5000">50</option>
+<option value="10000">100</option>
+<option value="15000">150</option>
+<option value="20000">200</option>
+</select>
+<br />
+<br />
+<button class="esri-widget" id="doBtn">Proveď</button> <br />
+<p><span id="printResults"></span></p>
+</div>
+</body>
+</html>
